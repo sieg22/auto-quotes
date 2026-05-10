@@ -4,7 +4,7 @@
 
 一个为手帐爱好者和练字爱好者设计的好句摘抄工具。支持中、英、日、法、韩五种语言，随机抓取文学名著、哲学思想、诗歌、歌词中的佳句，配合字体切换功能，方便对照练字。
 
-🔗 **在线访问：** [your-username.github.io/auto-quotes](https://your-username.github.io/auto-quotes)
+🔗 **在线访问：** https://sieg22.github.io/auto-quotes/
 
 
 ---
@@ -107,7 +107,7 @@ assets/fonts/
 
 A literary quote generator designed for journaling and calligraphy practice. Supports Chinese, English, Japanese, French, and Korean. Randomly fetches passages from literature, philosophy, poetry, and song lyrics — with font switching for handwriting practice.
 
-🔗 **Live demo:** [your-username.github.io/auto-quotes](https://your-username.github.io/auto-quotes)
+🔗 **Live demo:** https://sieg22.github.io/auto-quotes/
 
 ---
 
