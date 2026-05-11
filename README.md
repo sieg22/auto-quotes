@@ -75,16 +75,6 @@ assets/fonts/
 
 ---
 
-## 上线部署
-
-### GitHub Pages（免费，推荐）
-
-1. Fork 或 clone 本仓库，推送到你自己的 GitHub
-2. 仓库 Settings → Pages → Source 选 `main` 分支
-3. 等待约 1 分钟，访问 `https://your-username.github.io/auto-quotes`
-
----
-
 ## 许可证
 
 本项目代码以 [MIT License](LICENSE) 开源。
@@ -154,16 +144,6 @@ No build step required. Some features (Wikiquote, PoetryDB) require internet acc
 3. Add an entry to the `localFontsZH` / `localFontsEN` / `localFontsJP` array in the JS
 
 > Please verify that the font licence permits web use (OFL, MIT, Apache, etc.)
-
----
-
-## Deployment
-
-### GitHub Pages (free, recommended)
-
-1. Push to your GitHub repo
-2. Settings → Pages → Source: `main` branch
-3. Visit `https://your-username.github.io/auto-quotes` after ~1 min
 
 ---
 
