@@ -168,7 +168,8 @@ select:focus { border-color: var(--accent); }
   content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 2;
   background: linear-gradient(to bottom, var(--accent), var(--accent-dim));
 }
-.card.loading { opacity: .3; filter: blur(3px); pointer-events: none; }
+.card.vert-card::before { display: none; }
+.card.vert-card { padding-left: 20px; }
 
 #qtext {
   font-size: 1.7rem; line-height: 2.2; white-space: pre-wrap; color: var(--ink);
@@ -188,6 +189,9 @@ select:focus { border-color: var(--accent); }
   margin-bottom: 0;
   margin-left: auto;
   text-align: left;
+  padding-left: 8px;
+  display: block;
+  width: 100%;
 }
 #qauthor.vert-attr { text-align: left; margin-top: 16px; }
 #qsource.vert-attr { text-align: left; }
@@ -327,10 +331,11 @@ let isVertical = false;
 
 function toggleVertical() {
   isVertical = !isVertical;
-  const btn = document.getElementById('btnDir');
-  const el  = document.getElementById('qtext');
-  const qa  = document.getElementById('qauthor');
-  const qs  = document.getElementById('qsource');
+  const btn  = document.getElementById('btnDir');
+  const el   = document.getElementById('qtext');
+  const qa   = document.getElementById('qauthor');
+  const qs   = document.getElementById('qsource');
+  const card = document.getElementById('card');
   btn.textContent = isVertical ? '横' : '竖';
   btn.className   = isVertical ? 'btn-dir active' : 'btn-dir';
   if (isVertical) {
@@ -338,11 +343,12 @@ function toggleVertical() {
     el.classList.remove('short-mode');
     qa.classList.add('vert-attr');
     qs.classList.add('vert-attr');
+    card.classList.add('vert-card');
   } else {
     el.classList.remove('vert-mode');
     qa.classList.remove('vert-attr');
     qs.classList.remove('vert-attr');
-    // restore short-mode if needed
+    card.classList.remove('vert-card');
     if (document.getElementById('sel-len').value === 'short') {
       el.classList.add('short-mode');
     }
@@ -1120,14 +1126,16 @@ async function loadQuote() {
 }
 
 function display(q, isLong) {
-  const el = document.getElementById('qtext');
+  const el   = document.getElementById('qtext');
+  const card = document.getElementById('card');
   el.textContent = q.text;
   el.style.fontFamily = currentFontFamily;
-  // Apply correct class depending on vertical state
   if (isVertical) {
     el.className = 'vert-mode';
+    card.classList.add('vert-card');
   } else {
     el.className = isLong ? '' : 'short-mode';
+    card.classList.remove('vert-card');
   }
   document.getElementById('qauthor').textContent = q.author ? `— ${q.author}` : '';
   const srcDisplay = (q.source && q.source !== 'Wikiquote') ? q.source : '';
