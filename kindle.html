@@ -7,6 +7,489 @@
 <style>
 @font-face { font-family: "CH硬笔"; src: url("assets/fonts/CH/硬笔.ttf"); }
 @font-face { font-family: "JP隷書"; src: url("assets/fonts/JP/隷书.ttf"); }
+@font-face { font-family: "Signatura"; src: url("assets/fonts/EN/Signatura.ttf"); }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #fff;
+  color: #000;
+  font-family: "CH硬笔", serif;
+  font-size: 18px;
+  padding: 14px 14px 40px;
+  max-width: 600px;
+  margin: 0 auto;
+  -webkit-text-size-adjust: none;
+}
+
+/* ── 标题 ── */
+.hd {
+  text-align: center;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+.hd h1 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 6px;
+}
+.hd small {
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: #555;
+}
+
+/* ── 顶栏 ── */
+.topbar {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+select {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.btn {
+  padding: 8px 10px;
+  background: #000;
+  color: #fff;
+  border: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+.btn:active { background: #444; }
+.btn-outline {
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+.btn-outline:active { background: #eee; }
+
+/* ── 摘抄卡片 ── */
+.card {
+  border: 1px solid #000;
+  border-left: 5px solid #000;
+  padding: 22px 18px 18px;
+  margin-bottom: 10px;
+  min-height: 240px;
+}
+
+/* ── 横排模式 ── */
+.quote-text {
+  font-size: 2.4rem;
+  line-height: 2.0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 22px;
+}
+
+/* ── 竖排模式 ── */
+.quote-text.vertical {
+  -webkit-writing-mode: vertical-rl;
+  writing-mode: vertical-rl;
+  -webkit-text-orientation: mixed;
+  text-orientation: mixed;
+  height: 380px;
+  max-height: 380px;
+  overflow: hidden;
+  letter-spacing: 0.15em;
+  line-height: 1.8;
+  font-size: 2.2rem;
+  margin-bottom: 0;
+  margin-left: auto;
+}
+
+/* ── 字体 ── */
+.quote-text.font-zh { font-family: "CH硬笔", serif; }
+.quote-text.font-en { font-family: "Signatura", cursive; font-size: 2.8rem; line-height: 1.6; }
+.quote-text.font-fr { font-family: "Signatura", cursive; font-size: 2.8rem; line-height: 1.6; }
+.quote-text.font-jp { font-family: "JP隷書", serif; }
+.quote-text.font-kr { font-family: serif; }
+
+/* 竖排时英文字体调整 */
+.quote-text.vertical.font-en { font-size: 1.8rem; }
+.quote-text.vertical.font-fr { font-size: 1.8rem; }
+
+/* ── 作者来源 ── */
+.quote-attr { text-align: right; border-top: 1px solid #000; padding-top: 10px; }
+.quote-attr.vertical-attr { text-align: left; margin-top: 12px; border-top: 1px solid #000; padding-top: 10px; }
+.quote-author { font-size: 0.9rem; font-style: italic; }
+.quote-source { font-size: 0.72rem; color: #555; margin-top: 3px; }
+
+/* ── 状态 ── */
+.status {
+  font-size: 0.68rem;
+  color: #888;
+  text-align: center;
+  margin-bottom: 6px;
+  min-height: 14px;
+}
+
+/* ── 页脚 ── */
+.footer {
+  margin-top: 30px;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+  font-size: 0.6rem;
+  color: #aaa;
+  text-align: center;
+  line-height: 1.8;
+}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <h1>摘 抄 本</h1>
+  <small>Auto Quotes · Kindle</small>
+</div>
+
+<div class="topbar">
+  <select id="sel-lang">
+    <option value="zh">中文</option>
+    <option value="en">English</option>
+    <option value="jp">日本語</option>
+    <option value="fr">Français</option>
+    <option value="kr">한국어</option>
+  </select>
+  <select id="sel-len">
+    <option value="long">长段</option>
+    <option value="short">短句</option>
+  </select>
+  <button class="btn btn-outline" id="btnDir" onclick="toggleDir()">竖</button>
+  <button class="btn" id="btnNext" onclick="loadQuote()">翻页</button>
+</div>
+
+<div class="card" id="card">
+  <div class="quote-text font-zh" id="qtext">正在翻阅书页…</div>
+  <div class="quote-attr" id="qattr">
+    <div class="quote-author" id="qauthor"></div>
+    <div class="quote-source" id="qsource"></div>
+  </div>
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="footer">
+  Auto Quotes · sieg22.github.io/auto-quotes
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// 全 ES5 + XMLHttpRequest，兼容 Android 4.4 / Chromium 30
+// ══════════════════════════════════════════════════════════════
+
+var isVertical = false;
+
+function toggleDir() {
+  isVertical = !isVertical;
+  var btn = document.getElementById('btnDir');
+  btn.textContent = isVertical ? '横' : '竖';
+  applyDir();
+}
+
+function applyDir() {
+  var el = document.getElementById('qtext');
+  var attr = document.getElementById('qattr');
+  if (isVertical) {
+    if (el.className.indexOf('vertical') === -1) {
+      el.className = el.className + ' vertical';
+    }
+    attr.className = 'quote-attr vertical-attr';
+  } else {
+    el.className = el.className.replace(' vertical', '');
+    attr.className = 'quote-attr';
+  }
+}
+
+var POOLS = {
+  'zh-long': [
+    { text: "我慢慢地、慢慢地了解到，所谓父女母子一场，只不过意味着，你和他的缘分就是今生今世不断地在目送他的背影渐行渐远。你站立在小路的这一端，看着他逐渐消失在小路转弯的地方，而且，他用背影默默告诉你：不必追。", author: "龙应台", source: "《目送》" },
+    { text: "人是一根芦苇，自然界中最脆弱的东西；但他是一根会思考的芦苇。要压死他，用不着整个宇宙都武装起来：一口气、一滴水就足以致他死命了。但是，纵使宇宙毁灭了他，人却仍然要比致他于死命的东西更高贵，因为他知道自己要死亡。", author: "帕斯卡尔", source: "《思想录》" },
+    { text: "在我们从出生到死亡的一生中，我们总是以为自己正活着，其实我们只是在不断地即将活着，总是在某一个令人渴望的明天死去。我们很少去欣赏我们已经拥有的，却总是去垂涎那些我们还没有得到的，或者早已失去的。", author: "加缪", source: "《西西弗神话》" },
+    { text: "存在先于本质。人首先是存在，碰到问题，然后才作出决定。我们没有可以依傍的上帝，没有先于我们的价值，没有一个指路的标志。我们是孤独的，没有任何借口。", author: "萨特", source: "《存在主义是一种人道主义》" },
+    { text: "我打江南走过，那等在季节里的容颜如莲花的开落。东风不来，三月的柳絮不飞；你的心如小小的寂寞的城，恰若青石的街道向晚；音乐不响起，三月不回来；而河水因你倒流。", author: "郑愁予", source: "《错误》" },
+    { text: "我是天空里的一片云，偶尔投影在你的波心——你不必讶异，更无须欢喜，在转瞬间消灭了踪影。你我相逢在黑夜的海上，你有你的，我有我的，方向；你记得也好，最好你忘掉，在这交会时互放的光亮！", author: "徐志摩", source: "《偶然》" },
+    { text: "我曾经跨过山和大海，也穿过人山人海；我曾经拥有着一切，转眼都飘散如烟；我曾经失落失望，失掉所有方向；直到看见平凡，才是唯一的答案。", author: "朴树", source: "《平凡之路》" },
+    { text: "知之者不如好之者，好之者不如乐之者。吾日三省吾身：为人谋而不忠乎？与朋友交而不信乎？传不习乎？学而不思则罔，思而不学则殆。", author: "孔子", source: "《论语》" },
+    { text: "对于一个艺术家来说，如果能够打破习惯，培育出一种始终如一的惊异感，那将是最伟大的财富。世界是崭新的，每一个早晨都是奇迹。如果我们能以第一次看见事物的眼光来看它们，那么这世界将会是多么美丽！", author: "安德烈·纪德", source: "《人间食粮》" },
+    { text: "一切都会成为往事。那时候我们将用一种温柔的、哀愁的眼神看待它。即便是那些最艰难的岁月，也会在回忆中变得柔软，像被水浸润了的旧纸张，保留着轮廓，又有了新的颜色。", author: "余华", source: "《活着》" }
+  ],
+  'zh-short': [
+    { text: "活着本身，就是答案。", author: "余华", source: "《活着》" },
+    { text: "他用背影默默告诉你，不必追。", author: "龙应台", source: "《目送》" },
+    { text: "你站在桥上看风景，看风景的人在楼上看你。", author: "卞之琳", source: "《断章》" },
+    { text: "明月装饰了你的窗子，你装饰了别人的梦。", author: "卞之琳", source: "《断章》" },
+    { text: "黑夜给了我黑色的眼睛，我却用它寻找光明。", author: "顾城", source: "《一代人》" },
+    { text: "我思故我在。", author: "笛卡尔", source: "《第一哲学沉思集》" },
+    { text: "上善若水，水善利万物而不争。", author: "老子", source: "《道德经》" },
+    { text: "己所不欲，勿施于人。", author: "孔子", source: "《论语》" },
+    { text: "问君能有几多愁，恰似一江春水向东流。", author: "李煜", source: "《虞美人》" },
+    { text: "此情可待成追忆，只是当时已惘然。", author: "李商隐", source: "《锦瑟》" },
+    { text: "人生若只如初见，何事秋风悲画扇。", author: "纳兰性德", source: "《木兰词》" },
+    { text: "平凡才是唯一的答案。", author: "朴树", source: "《平凡之路》" },
+    { text: "念念不忘，必有回响。", author: "叶问", source: "《一代宗师》" },
+    { text: "世界上只有一种英雄主义，就是认清生活的真相之后依然热爱生活。", author: "罗曼·罗兰", source: "《米开朗琪罗传》" }
+  ],
+  'en-long': [
+    { text: "I took a deep breath and listened to the old brag of my heart: I am, I am, I am. There must be quite a few things a hot bath won't cure, but I don't know many of them. Wherever I sat — on the deck of a ship or at a street café in Paris or Bangkok — I would be sitting under the same glass bell jar, stewing in my own sour air.", author: "Sylvia Plath", source: "The Bell Jar" },
+    { text: "One must imagine Sisyphus happy. The absurd man thus catches sight of a burning and frigid, transparent and limited universe in which nothing is possible but everything is given, and beyond which all is collapse and nothingness.", author: "Albert Camus", source: "The Myth of Sisyphus" },
+    { text: "Do not go gentle into that good night,\nOld age should burn and rave at close of day;\nRage, rage against the dying of the light.\n\nThough wise men at their end know dark is right,\nBecause their words had forked no lightning they\nDo not go gentle into that good night.", author: "Dylan Thomas", source: "Do Not Go Gentle Into That Good Night" },
+    { text: "We shall not cease from exploration, and the end of all our exploring will be to arrive where we started and know the place for the first time. Through the unknown, unremembered gate, when the last of earth left to discover is that which was the beginning.", author: "T.S. Eliot", source: "Four Quartets" },
+    { text: "Man is condemned to be free; because once thrown into the world, he is responsible for everything he does. It is therefore senseless to think of complaining since nothing foreign has decided what we feel, what we live, or what we are.", author: "Jean-Paul Sartre", source: "Being and Nothingness" },
+    { text: "Hello darkness, my old friend,\nI've come to talk with you again,\nbecause a vision softly creeping\nleft its seeds while I was sleeping,\nand the vision that was planted in my brain\nstill remains within the sound of silence.", author: "Simon & Garfunkel", source: "The Sound of Silence" },
+    { text: "Two roads diverged in a yellow wood,\nAnd sorry I could not travel both\nAnd be one traveler, long I stood\nAnd looked down one as far as I could\nTo where it bent in the undergrowth.", author: "Robert Frost", source: "The Road Not Taken" },
+    { text: "Because I could not stop for Death –\nHe kindly stopped for me –\nThe Carriage held but just Ourselves –\nAnd Immortality.\n\nWe slowly drove – He knew no haste\nAnd I had put away\nMy labor and my leisure too,\nFor His Civility –", author: "Emily Dickinson", source: "Because I could not stop for Death" }
+  ],
+  'en-short': [
+    { text: "I am, I am, I am.", author: "Sylvia Plath", source: "The Bell Jar" },
+    { text: "Not all those who wander are lost.", author: "J.R.R. Tolkien", source: "The Lord of the Rings" },
+    { text: "Rage, rage against the dying of the light.", author: "Dylan Thomas", source: "Do Not Go Gentle" },
+    { text: "I took the one less traveled by, and that has made all the difference.", author: "Robert Frost", source: "The Road Not Taken" },
+    { text: "So we beat on, boats against the current.", author: "F. Scott Fitzgerald", source: "The Great Gatsby" },
+    { text: "I think, therefore I am.", author: "René Descartes", source: "Discourse on the Method" },
+    { text: "The unexamined life is not worth living.", author: "Socrates", source: "Plato's Apology" },
+    { text: "That's how the light gets in.", author: "Leonard Cohen", source: "Anthem" },
+    { text: "Hello darkness, my old friend.", author: "Simon & Garfunkel", source: "The Sound of Silence" },
+    { text: "Beauty is truth, truth beauty.", author: "John Keats", source: "Ode on a Grecian Urn" },
+    { text: "I am large, I contain multitudes.", author: "Walt Whitman", source: "Song of Myself" }
+  ],
+  'jp-long': [
+    { text: "国境の長いトンネルを抜けると雪国であった。夜の底が白くなった。信号所に汽車が止まった。", author: "川端康成", source: "『雪国』" },
+    { text: "メロスは激怒した。必ず、かの邪智暴虐の王を除かなければならぬと決意した。メロスには政治がわからぬ。メロスは、村の牧人である。笛を吹き、羊と遊んで暮して来た。", author: "太宰治", source: "『走れメロス』" },
+    { text: "人の一生は重荷を負うて遠き道を行くがごとし。急ぐべからず。不自由を常と思えば不足なし。こころに望みおこらば困窮したる時を思い出すべし。", author: "徳川家康", source: "東照公御遺訓" },
+    { text: "春はあけぼの。やうやう白くなりゆく山ぎは、すこしあかりて、紫だちたる雲の細くたなびきたる。", author: "清少納言", source: "『枕草子』" },
+    { text: "君がため\n惜しからざりし\n命さへ\n長くもがなと\n思ひけるかな", author: "藤原義孝", source: "百人一首" }
+  ],
+  'jp-short': [
+    { text: "恥の多い生涯を送って来ました。", author: "太宰治", source: "『人間失格』" },
+    { text: "国境の長いトンネルを抜けると雪国であった。", author: "川端康成", source: "『雪国』" },
+    { text: "古池や 蛙飛び込む 水の音", author: "松尾芭蕉", source: "俳句" },
+    { text: "柿食えば 鐘が鳴るなり 法隆寺", author: "正岡子規", source: "俳句" },
+    { text: "散る桜 残る桜も 散る桜", author: "良寛", source: "辞世の句" },
+    { text: "初心忘るべからず。", author: "世阿弥", source: "『花鏡』" },
+    { text: "七転び八起き。", author: "ことわざ", source: "日本語" },
+    { text: "花の色は うつりにけりな いたづらに", author: "小野小町", source: "百人一首" }
+  ],
+  'fr-long': [
+    { text: "On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux. C'est le temps que tu as perdu pour ta rose qui fait ta rose si importante.", author: "Antoine de Saint-Exupéry", source: "Le Petit Prince" },
+    { text: "L'homme est condamné à être libre. Condamné, parce qu'il ne s'est pas créé lui-même, et par ailleurs cependant libre, parce qu'une fois jeté dans le monde, il est responsable de tout ce qu'il fait.", author: "Jean-Paul Sartre", source: "L'existentialisme est un humanisme" },
+    { text: "Demain, dès l'aube, à l'heure où blanchit la campagne,\nJe partirai. Vois-tu, je sais que tu m'attends.\nJ'irai par la forêt, j'irai par la montagne.\nJe ne puis demeurer loin de toi plus longtemps.", author: "Victor Hugo", source: "Les Contemplations" },
+    { text: "Mon enfant, ma sœur,\nSonge à la douceur\nD'aller là-bas vivre ensemble !\nAimer à loisir,\nAimer et mourir\nAu pays qui te ressemble !", author: "Charles Baudelaire", source: "L'Invitation au voyage" }
+  ],
+  'fr-short': [
+    { text: "L'essentiel est invisible pour les yeux.", author: "Antoine de Saint-Exupéry", source: "Le Petit Prince" },
+    { text: "Je pense, donc je suis.", author: "René Descartes", source: "Discours de la méthode" },
+    { text: "L'enfer, c'est les autres.", author: "Jean-Paul Sartre", source: "Huis clos" },
+    { text: "Il faut cultiver notre jardin.", author: "Voltaire", source: "Candide" },
+    { text: "Le cœur a ses raisons que la raison ne connaît point.", author: "Blaise Pascal", source: "Pensées" },
+    { text: "Il pleure dans mon cœur comme il pleut sur la ville.", author: "Paul Verlaine", source: "Romances sans paroles" },
+    { text: "Sous le pont Mirabeau coule la Seine.", author: "Guillaume Apollinaire", source: "Le Pont Mirabeau" }
+  ],
+  'kr-long': [
+    { text: "우리가 지금 이 자리에 있다는 것, 지금 이 순간 숨을 쉬고 있다는 것이 기적이다. 살아 있다는 것이 기적이고, 살아 있는 이상 반드시 의미가 있다. 아직 끝나지 않았다는 것은, 아직 시작할 수 있다는 것이다.", author: "김훈", source: "《칼의 노래》" },
+    { text: "나 보기가 역겨워\n가실 때에는\n말없이 고이 보내 드리오리다.\n\n영변에 약산\n진달래꽃\n아름 따다 가실 길에 뿌리오리다.", author: "김소월", source: "《진달래꽃》" },
+    { text: "죽는 날까지 하늘을 우러러\n한 점 부끄럼이 없기를,\n잎새에 이는 바람에도\n나는 괴로워했다.\n별을 노래하는 마음으로\n모든 죽어가는 것을 사랑해야지.", author: "윤동주", source: "《서시》" },
+    { text: "내가 그의 이름을 불러 주기 전에는\n그는 다만\n하나의 몸짓에 지나지 않았다.\n내가 그의 이름을 불러 주었을 때,\n그는 나에게로 와서\n꽃이 되었다.", author: "김춘수", source: "《꽃》" }
+  ],
+  'kr-short': [
+    { text: "살아 있다는 것이 기적이다.", author: "김훈", source: "《칼의 노래》" },
+    { text: "말없이 고이 보내 드리오리다.", author: "김소월", source: "《진달래꽃》" },
+    { text: "죽는 날까지 하늘을 우러러 한 점 부끄럼이 없기를.", author: "윤동주", source: "《서시》" },
+    { text: "내가 그의 이름을 불러 주었을 때, 그는 나에게로 와서 꽃이 되었다.", author: "김춘수", source: "《꽃》" },
+    { text: "뜻이 있는 곳에 길이 있다.", author: "정약용", source: "《목민심서》" },
+    { text: "가장 아름다운 것은 보이지 않는다.", author: "생텍쥐페리", source: "《어린 왕자》" }
+  ]
+};
+
+var WQ_APIS = {
+  zh: 'https://zh.wikiquote.org/w/api.php',
+  en: 'https://en.wikiquote.org/w/api.php',
+  jp: 'https://ja.wikiquote.org/w/api.php',
+  fr: 'https://fr.wikiquote.org/w/api.php',
+  kr: 'https://ko.wikiquote.org/w/api.php'
+};
+var WQ_AUTHORS = {
+  zh: ['鲁迅','张爱玲','余华','莫言','老舍','孔子','庄子','李白','杜甫','苏轼','李清照'],
+  en: ['Virginia Woolf','Albert Camus','Oscar Wilde','Emily Dickinson','Ernest Hemingway','Friedrich Nietzsche','Marcus Aurelius','T.S. Eliot','Walt Whitman','Dylan Thomas','Robert Frost'],
+  jp: ['太宰治','夏目漱石','川端康成','松尾芭蕉','正岡子規'],
+  fr: ['Victor Hugo','Albert Camus','Antoine de Saint-Exupéry','René Descartes','Charles Baudelaire','Paul Verlaine'],
+  kr: ['박경리','김훈','신경숙','김소월','윤동주','김춘수']
+};
+
+function xhr(url, onOk, onErr) {
+  var req = new XMLHttpRequest();
+  req.open('GET', url, true);
+  req.onreadystatechange = function() {
+    if (req.readyState === 4) {
+      if (req.status === 200) {
+        try { onOk(JSON.parse(req.responseText)); }
+        catch(e) { onErr(e); }
+      } else { onErr(new Error('HTTP ' + req.status)); }
+    }
+  };
+  req.onerror = function() { onErr(new Error('network')); };
+  req.send();
+}
+
+function fetchHitokoto(isLong, cb) {
+  var url = 'https://v1.hitokoto.cn/?c=d&c=k&c=i' + (isLong ? '&min_length=40' : '&max_length=25');
+  xhr(url, function(d) {
+    cb({ text: d.hitokoto, author: d.from_who || '', source: d.from ? '\u300a' + d.from + '\u300b' : '' });
+  }, function() { cb(null); });
+}
+
+function fetchWikiquote(lang, isLong, cb) {
+  var api = WQ_APIS[lang];
+  var authors = WQ_AUTHORS[lang] || [];
+  if (!api || !authors.length) { cb(null); return; }
+  var author = authors[Math.floor(Math.random() * authors.length)];
+  setStatus((lang === 'en' || lang === 'fr' ? 'Searching: ' : '查询：') + author);
+
+  xhr(api + '?action=query&list=search&srsearch=' + encodeURIComponent(author) + '&format=json&origin=*',
+  function(sd) {
+    if (!sd.query || !sd.query.search || !sd.query.search.length) { cb(null); return; }
+    var pageId = sd.query.search[0].pageid;
+    var pageTitle = sd.query.search[0].title;
+
+    xhr(api + '?action=parse&pageid=' + pageId + '&prop=sections&format=json&origin=*',
+    function(secD) {
+      var secs = secD.parse && secD.parse.sections ? secD.parse.sections : [];
+      var valid = [];
+      for (var i = 0; i < secs.length; i++) {
+        if (secs[i].toclevel <= 2) valid.push(secs[i]);
+      }
+      if (!valid.length) { cb(null); return; }
+      var sec = valid[Math.floor(Math.random() * Math.min(valid.length, 4))];
+
+      xhr(api + '?action=parse&pageid=' + pageId + '&section=' + sec.index + '&prop=text&format=json&origin=*',
+      function(td) {
+        var html = td.parse && td.parse.text ? td.parse.text['*'] : '';
+        if (!html) { cb(null); return; }
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        var items = div.querySelectorAll('li');
+        var quotes = [];
+        for (var j = 0; j < items.length; j++) {
+          var t = items[j].textContent.replace(/\s+/g, ' ').trim();
+          if (t.length < 10 || t.length > 1000) continue;
+          if (/^(来源|Source|参考|See also|References|出典|Sourced|About|External)/i.test(t)) continue;
+          if (lang === 'zh' && !(/[\u4e00-\u9fff]/).test(t)) continue;
+          if (lang === 'en') { var m = t.match(/[a-zA-Z]/g); if (!m || m.length/t.length < 0.5) continue; }
+          if (lang === 'jp' && !(/[\u3040-\u30ff]/).test(t)) continue;
+          if (lang === 'kr' && !(/[\uac00-\ud7a3]/).test(t)) continue;
+          quotes.push(t);
+        }
+        if (!quotes.length) { cb(null); return; }
+
+        var pool, chosen;
+        if (isLong) {
+          pool = [];
+          for (var k = 0; k < quotes.length; k++) { if (quotes[k].length > 80) pool.push(quotes[k]); }
+          if (!pool.length) pool = quotes;
+          chosen = pool[Math.floor(Math.random() * pool.length)];
+        } else {
+          pool = [];
+          for (var n = 0; n < quotes.length; n++) { if (quotes[n].length < 80) pool.push(quotes[n]); }
+          if (!pool.length) pool = quotes;
+          chosen = pool[Math.floor(Math.random() * pool.length)];
+          var match = chosen.match(/^[^.!?。！？]{5,}[.!?。！？]/);
+          if (match) chosen = match[0].trim();
+          else if (chosen.length > 65) chosen = chosen.slice(0, 60) + '…';
+        }
+        cb({ text: chosen, author: pageTitle, source: '' });
+      }, function() { cb(null); });
+    }, function() { cb(null); });
+  }, function() { cb(null); });
+}
+
+var used = {};
+function pickPool(pool, key) {
+  if (!used[key] || used[key].length >= pool.length) { used[key] = []; }
+  var idx, tries = 0;
+  do { idx = Math.floor(Math.random() * pool.length); tries++; }
+  while (used[key].indexOf(idx) !== -1 && tries < 30);
+  used[key].push(idx);
+  return pool[idx];
+}
+
+function display(q) {
+  var lang = document.getElementById('sel-lang').value;
+  var el = document.getElementById('qtext');
+  el.textContent = q.text;
+  // 保留 vertical class，只更新字体 class
+  var cls = 'quote-text font-' + lang;
+  if (isVertical) cls += ' vertical';
+  el.className = cls;
+  document.getElementById('qauthor').textContent = q.author ? '— ' + q.author : '';
+  var src = (q.source && q.source !== 'Wikiquote') ? q.source : '';
+  document.getElementById('qsource').textContent = src;
+  setStatus('');
+}
+
+function setStatus(s) { document.getElementById('status').textContent = s || ''; }
+
+function loadQuote() {
+  var lang   = document.getElementById('sel-lang').value;
+  var isLong = document.getElementById('sel-len').value === 'long';
+  var key    = lang + '-' + (isLong ? 'long' : 'short');
+  var pool   = POOLS[key] || [];
+
+  document.getElementById('qtext').textContent = '\u6b63\u5728\u7ffb\u9605\u4e66\u9875\u2026';
+  document.getElementById('qauthor').textContent = '';
+  document.getElementById('qsource').textContent = '';
+  setStatus('');
+
+  var useWQ = Math.random() < 0.4;
+
+  if (useWQ) {
+    fetchWikiquote(lang, isLong, function(q) {
+      if (q) { display(q); }
+      else if (pool.length) { display(pickPool(pool, key)); }
+      else { document.getElementById('qtext').textContent = '\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002'; setStatus(''); }
+    });
+    return;
+  }
+
+  if (lang === 'zh' && Math.random() < 0.4) {
+    fetchHitokoto(isLong, function(q) {
+      if (q) { display(q); }
+      else if (pool.length) { display(pickPool(pool, key)); }
+    });
+    return;
+  }
+
+  if (pool.length) { display(pickPool(pool, key)); }
+  else { document.getElementById('qtext').textContent = '\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002'; }
+}
+
+loadQuote();
+</script>
+</body>
+</html>
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
