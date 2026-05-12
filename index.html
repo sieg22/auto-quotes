@@ -135,6 +135,14 @@ select:focus { border-color: var(--accent); }
   white-space: nowrap; transition: filter .2s; box-shadow: 0 3px 10px rgba(139,111,71,.22);
 }
 .btn-next:hover { filter: brightness(1.12); }
+.btn-dir {
+  padding: 8px 14px; background: var(--card-bg); color: var(--ink-light);
+  border: 1px solid var(--line); border-radius: 3px;
+  font-family: inherit; font-size: 0.88rem; cursor: pointer;
+  white-space: nowrap; transition: all .15s; margin-right: 6px;
+}
+.btn-dir:hover { border-color: var(--accent); color: var(--accent); }
+.btn-dir.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 /* ── 纸张纹理 & 随机色调 ───────────────────────────────────── */
 /* SVG noise filter for paper texture */
@@ -167,6 +175,22 @@ select:focus { border-color: var(--accent); }
   letter-spacing: 0.3px; margin-bottom: 36px; word-break: break-word; transition: color .3s;
 }
 #qtext.short-mode { font-size: 2.2rem; line-height: 1.9; text-align: center; margin-bottom: 30px; letter-spacing: 1px; }
+#qtext.vert-mode {
+  writing-mode: vertical-rl;
+  -webkit-writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: 420px;
+  max-height: 420px;
+  overflow: hidden;
+  line-height: 1.9;
+  letter-spacing: 0.1em;
+  font-size: 1.5rem;
+  margin-bottom: 0;
+  margin-left: auto;
+  text-align: left;
+}
+#qauthor.vert-attr { text-align: left; margin-top: 16px; }
+#qsource.vert-attr { text-align: left; }
 #qauthor { font-size: 0.9rem; color: var(--accent); text-align: right; font-style: italic; border-top: 1px solid var(--line); padding-top: 18px; letter-spacing: 0.5px; }
 #qsource { font-size: 0.75rem; color: var(--accent-dim); text-align: right; margin-top: 4px; letter-spacing: 1px; }
 
@@ -247,6 +271,7 @@ select:focus { border-color: var(--accent); }
   <div class="toolbar" id="toolbar">
     <span class="toolbar-label" id="ui-fontlabel">字体·</span>
     <div class="tb-spacer"></div>
+    <button class="btn-dir" id="btnDir" onclick="toggleVertical()">竖</button>
     <button class="btn-next" id="ui-next" onclick="loadQuote()">翻页 →</button>
   </div>
 
@@ -296,7 +321,36 @@ function toggleTheme() {
 })();
 
 // ══════════════════════════════════════════════════════════════
-// UI LANGUAGE  (界面语言 中 / EN)
+// VERTICAL MODE
+// ══════════════════════════════════════════════════════════════
+let isVertical = false;
+
+function toggleVertical() {
+  isVertical = !isVertical;
+  const btn = document.getElementById('btnDir');
+  const el  = document.getElementById('qtext');
+  const qa  = document.getElementById('qauthor');
+  const qs  = document.getElementById('qsource');
+  btn.textContent = isVertical ? '横' : '竖';
+  btn.className   = isVertical ? 'btn-dir active' : 'btn-dir';
+  if (isVertical) {
+    el.classList.add('vert-mode');
+    el.classList.remove('short-mode');
+    qa.classList.add('vert-attr');
+    qs.classList.add('vert-attr');
+  } else {
+    el.classList.remove('vert-mode');
+    qa.classList.remove('vert-attr');
+    qs.classList.remove('vert-attr');
+    // restore short-mode if needed
+    if (document.getElementById('sel-len').value === 'short') {
+      el.classList.add('short-mode');
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// FONTS
 // ══════════════════════════════════════════════════════════════
 const UI_STRINGS = {
   zh: {
@@ -1069,9 +1123,13 @@ function display(q, isLong) {
   const el = document.getElementById('qtext');
   el.textContent = q.text;
   el.style.fontFamily = currentFontFamily;
-  el.className = isLong ? '' : 'short-mode';
+  // Apply correct class depending on vertical state
+  if (isVertical) {
+    el.className = 'vert-mode';
+  } else {
+    el.className = isLong ? '' : 'short-mode';
+  }
   document.getElementById('qauthor').textContent = q.author ? `— ${q.author}` : '';
-  // Never show "Wikiquote" as a source label
   const srcDisplay = (q.source && q.source !== 'Wikiquote') ? q.source : '';
   document.getElementById('qsource').textContent = srcDisplay;
   const saved = favorites.some(f => f.text === q.text);
