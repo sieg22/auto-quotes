@@ -978,6 +978,9 @@ async function fetchWikiquote(apiBase, author, isLong, lang) {
       const t = li.textContent.trim().replace(/\s+/g, ' ');
       if (t.length < 10 || t.length > 1200) return;
       if (/^(来源|Source|参考|See also|References|Sourced|Unsourced|About|External|出典|引用元)/i.test(t)) return;
+      if (/\.(png|jpg|jpeg|gif|svg|webp)/i.test(t)) return;
+      if (/^(http|www\.)/i.test(t)) return;
+      if (/\[\[|\]\]|\{\{|\}\}/.test(t)) return;
       if (!checkFn(t)) return;
       quotes.push(t);
     });

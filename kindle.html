@@ -334,7 +334,7 @@ function xhr(url, ok, err) {
 }
 
 function hitokoto(isLong, cb) {
-  var url = "https://v1.hitokoto.cn/?c=d&c=k&c=i" + (isLong ? "&min_length=40" : "&max_length=25");
+  var url = "https://v1.hitokoto.cn/?c=d&c=k&c=i&encode=json&charset=utf-8&r=" + Math.random() + (isLong ? "&min_length=40" : "&max_length=25");
   xhr(url, function(d) {
     cb({t: d.hitokoto, a: d.from_who || "", s: d.from ? "\u300a" + d.from + "\u300b" : ""});
   }, function() { cb(null); });
@@ -370,6 +370,9 @@ function wq(lang, isLong, cb) {
           var tx = items[j].textContent.replace(/\s+/g, " ").trim();
           if (tx.length < 10 || tx.length > 1000) continue;
           if (/^(Source|See also|References|Sourced|About|External|\u6765\u6e90|\u53c2\u8003|\u51fa\u5178)/i.test(tx)) continue;
+          if (/\.(png|jpg|jpeg|gif|svg|webp)/i.test(tx)) continue;
+          if (/^(http|www\.)/i.test(tx)) continue;
+          if (/\[\[|\]\]|\{\{|\}\}/.test(tx)) continue;
           if (lang === "zh" && !(/[\u4e00-\u9fff]/).test(tx)) continue;
           if (lang === "en") { var m = tx.match(/[a-zA-Z]/g); if (!m || m.length/tx.length < 0.5) continue; }
           if (lang === "jp" && !(/[\u3040-\u30ff]/).test(tx)) continue;
