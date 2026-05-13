@@ -18,6 +18,8 @@
 @font-face { font-family: "BigSnow";        src: url("assets/fonts/EN/BigSnow.ttf"); }
 @font-face { font-family: "Signatura";      src: url("assets/fonts/EN/Signatura.ttf"); }
 @font-face { font-family: "Gothic";         src: url("assets/fonts/EN/Gothic.ttf"); }
+/* 法文 */
+@font-face { font-family: "WindSong";       src: url("assets/fonts/FR/WindSong.ttf"); }
 /* 韩文 */
 @font-face { font-family: "Nanum";          src: url("assets/fonts/KR/Nanum.ttf"); }
 @font-face { font-family: "NanumPen";       src: url("assets/fonts/KR/NanumPen.ttf"); }
@@ -528,7 +530,13 @@ const localFontsJP = [
   { label: '毛筆',  family: '"JP毛筆", cursive' },
   { label: '隷書',  family: '"JP隷書", serif' },
 ];
-const localFontsFR = localFontsEN;
+const localFontsFR = [
+  { label: 'WindSong',  family: '"WindSong", cursive' },
+  { label: 'Cursive',   family: '"AmericanCursive", cursive' },
+  { label: 'BigSnow',   family: '"BigSnow", serif' },
+  { label: 'Signatura', family: '"Signatura", cursive' },
+  { label: 'Gothic',    family: '"Gothic", serif' },
+];
 
 let currentFontFamily = '"黑体", serif';
 
