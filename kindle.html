@@ -63,7 +63,7 @@ select {
   flex: 1;
   padding: 7px 4px;
   font-size: 0.82rem;
-  font-family: inherit;
+  font-family: serif;
   border: 1px solid #000;
   background: #fff;
   color: #000;
@@ -171,7 +171,7 @@ select {
     <option value="zh">&#20013;&#25991;</option>
     <option value="en">English</option>
     <option value="jp">&#26085;&#26412;&#35486;</option>
-    <option value="fr">Fran&#231;ais</option>
+    <option value="fr">Francais</option>
     <option value="kr">&#54620;&#44397;&#50612;</option>
   </select>
   <select id="sn">
@@ -396,14 +396,8 @@ function wq(lang, isLong, cb) {
   }, function() { cb(null); });
 }
 
-var used = {};
-function pick(pool, key) {
-  if (!used[key] || used[key].length >= pool.length) { used[key] = []; }
-  var idx, tries = 0;
-  do { idx = Math.floor(Math.random() * pool.length); tries++; }
-  while (used[key].indexOf(idx) !== -1 && tries < 30);
-  used[key].push(idx);
-  return pool[idx];
+function pick(pool) {
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function show(q) {
@@ -429,23 +423,48 @@ function loadQuote() {
   document.getElementById("qa").textContent = "";
   document.getElementById("qs").textContent = "";
   st("");
-  var useWQ = Math.random() < 0.4;
-  if (useWQ) {
-    wq(lang, isLong, function(q) {
-      if (q) { show(q); }
-      else if (pool.length) { show(pick(pool, key)); }
-      else { document.getElementById("qt").textContent = "\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002"; st(""); }
-    });
-    return;
+
+  var roll = Math.random();
+
+  if (lang === "zh") {
+    // 中文：60% Hitokoto，30% Wikiquote，10% 内置
+    if (roll < 0.6) {
+      hitokoto(isLong, function(q) {
+        if (q) { show(q); }
+        else { wq(lang, isLong, function(q2) {
+          if (q2) { show(q2); } else if (pool.length) { show(pick(pool)); }
+          else { document.getElementById("qt").textContent = "\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002"; st(""); }
+        }); }
+      });
+    } else if (roll < 0.9) {
+      wq(lang, isLong, function(q) {
+        if (q) { show(q); }
+        else { hitokoto(isLong, function(q2) {
+          if (q2) { show(q2); } else if (pool.length) { show(pick(pool)); }
+        }); }
+      });
+    } else {
+      if (pool.length) { show(pick(pool)); }
+      else { hitokoto(isLong, function(q) { if (q) show(q); }); }
+    }
+  } else {
+    // 其他语言：60% Wikiquote，40% 内置
+    if (roll < 0.6) {
+      wq(lang, isLong, function(q) {
+        if (q) { show(q); }
+        else if (pool.length) { show(pick(pool)); }
+        else { document.getElementById("qt").textContent = "\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002"; st(""); }
+      });
+    } else {
+      if (pool.length) { show(pick(pool)); }
+      else {
+        wq(lang, isLong, function(q) {
+          if (q) { show(q); }
+          else { document.getElementById("qt").textContent = "\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002"; st(""); }
+        });
+      }
+    }
   }
-  if (lang === "zh" && Math.random() < 0.4) {
-    hitokoto(isLong, function(q) {
-      if (q) { show(q); } else if (pool.length) { show(pick(pool, key)); }
-    });
-    return;
-  }
-  if (pool.length) { show(pick(pool, key)); }
-  else { document.getElementById("qt").textContent = "\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002"; }
 }
 
 document.getElementById("bd").onclick = function() {
