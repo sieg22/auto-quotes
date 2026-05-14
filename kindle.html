@@ -323,12 +323,14 @@ var WQA = {
 function xhr(url, ok, err) {
   var r = new XMLHttpRequest();
   r.open("GET", url, true);
+  r.timeout = 12000;
   r.onreadystatechange = function() {
     if (r.readyState === 4) {
       if (r.status === 200) { try { ok(JSON.parse(r.responseText)); } catch(e) { err(e); } }
       else { err(new Error("HTTP " + r.status)); }
     }
   };
+  r.ontimeout = function() { err(new Error("timeout")); };
   r.onerror = function() { err(new Error("net")); };
   r.send();
 }
@@ -399,8 +401,14 @@ function wq(lang, isLong, cb) {
   }, function() { cb(null); });
 }
 
-function pick(pool) {
-  return pool[Math.floor(Math.random() * pool.length)];
+var used = {};
+function pick(pool, key) {
+  if (!used[key] || used[key].length >= pool.length) { used[key] = []; }
+  var idx, tries = 0;
+  do { idx = Math.floor(Math.random() * pool.length); tries++; }
+  while (used[key].indexOf(idx) !== -1 && tries < 30);
+  used[key].push(idx);
+  return pool[idx];
 }
 
 function show(q) {
@@ -430,12 +438,11 @@ function loadQuote() {
   var roll = Math.random();
 
   if (lang === "zh") {
-    // 中文：60% Hitokoto，30% Wikiquote，10% 内置
     if (roll < 0.6) {
       hitokoto(isLong, function(q) {
         if (q) { show(q); }
         else { wq(lang, isLong, function(q2) {
-          if (q2) { show(q2); } else if (pool.length) { show(pick(pool)); }
+          if (q2) { show(q2); } else if (pool.length) { show(pick(pool, key)); }
           else { document.getElementById("qt").textContent = "\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002"; st(""); }
         }); }
       });
@@ -443,23 +450,22 @@ function loadQuote() {
       wq(lang, isLong, function(q) {
         if (q) { show(q); }
         else { hitokoto(isLong, function(q2) {
-          if (q2) { show(q2); } else if (pool.length) { show(pick(pool)); }
+          if (q2) { show(q2); } else if (pool.length) { show(pick(pool, key)); }
         }); }
       });
     } else {
-      if (pool.length) { show(pick(pool)); }
+      if (pool.length) { show(pick(pool, key)); }
       else { hitokoto(isLong, function(q) { if (q) show(q); }); }
     }
   } else {
-    // 其他语言：60% Wikiquote，40% 内置
     if (roll < 0.6) {
       wq(lang, isLong, function(q) {
         if (q) { show(q); }
-        else if (pool.length) { show(pick(pool)); }
+        else if (pool.length) { show(pick(pool, key)); }
         else { document.getElementById("qt").textContent = "\u8bf7\u518d\u8bd5\u4e00\u6b21\u3002"; st(""); }
       });
     } else {
-      if (pool.length) { show(pick(pool)); }
+      if (pool.length) { show(pick(pool, key)); }
       else {
         wq(lang, isLong, function(q) {
           if (q) { show(q); }
